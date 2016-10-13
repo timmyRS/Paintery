@@ -149,7 +149,130 @@
 	<script type="text/javascript" src="canvas2image.js"></script>
 	<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js" integrity="sha384-0mSbJDEHialfmuBBQP6A4Qrprq5OVfW37PRR3j5ELqxss1yVqOtnepnHVP9aJ7xS" crossorigin="anonymous"></script>
 	<link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/font-awesome/4.5.0/css/font-awesome.min.css"/>
-	<!-- Script -->
+	<!-- Paper Script -->
+	<script type="text/paperscript" canvas="canvas">
+		var path = null;
+		var start = null;
+		var paths = [];
+		var redos = [];
+		var canvas = document.getElementById("canvas");
+
+		this.paperDraw = function()
+		{
+			// Menu: Edit
+			if(window.undoAction)
+			{
+				window.undoAction = false;
+				var l = paths.length;
+				if(l > 0)
+				{
+					var i = paths.indexOf(paths[(l - 1)]);
+					if(i > -1)
+					{
+						var o = paths[i].clone();
+						o.visible = false;
+						redos.push(o);
+						paths[i].remove();
+						paths.splice(i, 1);
+						view.update();
+					}
+				}
+			}
+			if(window.redoAction)
+			{
+				window.redoAction = false;
+				var l = redos.length;
+				if(l > 0)
+				{
+					var i = redos.indexOf(redos[(l - 1)]);
+					if(i > -1)
+					{
+						redos[i].visible = true;
+						paths.push(redos[i]);
+						redos.splice(i, 1);
+						view.update();
+					}
+				}
+			}
+			if(window.clearCanvas)
+			{
+				window.clearCanvas = false;
+				for(var i = 0; i < paths.length; i++)
+				{
+					paths[i].remove();
+				}
+				path = null;
+				start = null;
+				paths = [];
+				redos = [];
+				view.update();
+			}
+		};
+
+		function onMouseDown(event)
+		{
+			start = event.point;
+			if(window.toolName == "pencil")
+			{
+				path = new Path({
+					segments: [event.point]
+				});
+			}
+			if(window.toolName == "line")
+			{
+				path = new Path.Line({
+					from: event.point,
+					to: event.point
+				});
+			}
+			if(window.toolName == "brush")
+			{
+				path = new Path({
+					segments: [event.point],
+					strokeWidth: stwidth
+				});
+			}
+			path.strokeColor = color;
+			strokeJoin = "round";
+			path.selected = window.drawDetails;
+		}
+
+		function onMouseDrag(event)
+		{
+			if(window.toolName == "pencil" || window.toolName == "brush")
+			{
+				path.add(event.point);
+			}
+			if(window.toolName == "line")
+			{
+				path.remove();
+				path = new Path.Line({
+					from: start,
+					to: event.point,
+					strokeColor: color,
+					selected: window.drawDetails,
+					strokeWidth: stwidth
+				});
+			}
+		}
+
+		function onMouseUp(event)
+		{
+			if(window.toolName == "pencil" || window.toolName == "brush")
+			{
+				if(window.simplify)
+				{
+					path.simplify(100);
+				}
+			}
+			path.selected = false;
+			paths.push(path);
+			path = null;
+		}
+
+		paper.install(window.paperscript);
+	</script>
+	<!-- Java Script -->
 	<script>
 		// Var: Basic
 		var rotErr = false;
@@ -334,128 +457,6 @@
 				scriptDraw();
 			}, 1);
 		}
-	</script>
-	<script type="text/paperscript" canvas="canvas">
-		var path = null;
-		var start = null;
-		var paths = [];
-		var redos = [];
-		var canvas = document.getElementById("canvas");
-
-		this.paperDraw = function()
-		{
-			// Menu: Edit
-			if(window.undoAction)
-			{
-				window.undoAction = false;
-				var l = paths.length;
-				if(l > 0)
-				{
-					var i = paths.indexOf(paths[(l - 1)]);
-					if(i > -1)
-					{
-						var o = paths[i].clone();
-						o.visible = false;
-						redos.push(o);
-						paths[i].remove();
-						paths.splice(i, 1);
-						view.update();
-					}
-				}
-			}
-			if(window.redoAction)
-			{
-				window.redoAction = false;
-				var l = redos.length;
-				if(l > 0)
-				{
-					var i = redos.indexOf(redos[(l - 1)]);
-					if(i > -1)
-					{
-						redos[i].visible = true;
-						paths.push(redos[i]);
-						redos.splice(i, 1);
-						view.update();
-					}
-				}
-			}
-			if(window.clearCanvas)
-			{
-				window.clearCanvas = false;
-				for(var i = 0; i < paths.length; i++)
-				{
-					paths[i].remove();
-				}
-				path = null;
-				start = null;
-				paths = [];
-				redos = [];
-				view.update();
-			}
-		};
-
-		function onMouseDown(event)
-		{
-			start = event.point;
-			if(window.toolName == "pencil")
-			{
-				path = new Path({
-					segments: [event.point]
-				});
-			}
-			if(window.toolName == "line")
-			{
-				path = new Path.Line({
-					from: event.point,
-					to: event.point
-				});
-			}
-			if(window.toolName == "brush")
-			{
-				path = new Path({
-					segments: [event.point],
-					strokeWidth: stwidth
-				});
-			}
-			path.strokeColor = color;
-			strokeJoin = "round";
-			path.selected = window.drawDetails;
-		}
-
-		function onMouseDrag(event)
-		{
-			if(window.toolName == "pencil" || window.toolName == "brush")
-			{
-				path.add(event.point);
-			}
-			if(window.toolName == "line")
-			{
-				path.remove();
-				path = new Path.Line({
-					from: start,
-					to: event.point,
-					strokeColor: color,
-					selected: window.drawDetails,
-					strokeWidth: stwidth
-				});
-			}
-		}
-
-		function onMouseUp(event)
-		{
-			if(window.toolName == "pencil" || window.toolName == "brush")
-			{
-				if(window.simplify)
-				{
-					path.simplify(100);
-				}
-			}
-			path.selected = false;
-			paths.push(path);
-			path = null;
-		}
-
-		paper.install(window.paperscript);
 	</script>
 </body>
 </html>
