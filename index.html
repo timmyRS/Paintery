@@ -11,7 +11,7 @@
 	<link rel="stylesheet" href="style.css">
 	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" integrity="sha384-1q8mTJOASx8j1Au+a5WDVnPi2lkFfwwEAa8hDDdjZlpLegxhjVME1fgjWPGmkzs7" crossorigin="anonymous">
 </head>
-<body onload="scriptDraw();">
+<body>
 	<!-- Navbar -->
 	<nav class="navbar navbar-inverse navbar-fixed-top" style="z-index: 2;">
 		<div class="container-fluid">
@@ -457,6 +457,14 @@
 				scriptDraw();
 			}, 1);
 		}
+
+		document.addEventListener("DOMContentLoaded", function()
+		{
+			window.setTimeout(function()
+			{
+				scriptDraw();
+			}, 100);
+		});
 	</script>
 </body>
 </html>
