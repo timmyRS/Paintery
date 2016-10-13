@@ -1,0 +1,461 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<title>Your Canvas - Draw! | Paintery</title>
+	<link rel="icon" type="image/png" href="icon.png" />
+	<meta name="title" content="Your Canvas - Draw! | Paintery" />
+	<meta name="description" content="Paintery is a web application you can use instead of paint.\nStill not perfect, but smooth." />
+	<meta name="author" content="Tim Speckhals" />
+	<meta name="copyright" content="Copyright (c) 2015-2016, Tim Speckhals" />
+	<meta name="viewport" content="width=device-width, initial-scale=1" />
+	<link rel="stylesheet" href="style.css">
+	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" integrity="sha384-1q8mTJOASx8j1Au+a5WDVnPi2lkFfwwEAa8hDDdjZlpLegxhjVME1fgjWPGmkzs7" crossorigin="anonymous">
+</head>
+<body onload="scriptDraw();">
+	<!-- Navbar -->
+	<nav class="navbar navbar-inverse navbar-fixed-top" style="z-index: 2;">
+		<div class="container-fluid">
+			<div class="navbar-header">
+				<button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1" aria-expanded="false">
+					<span class="icon-bar"></span>
+					<span class="icon-bar"></span>
+					<span class="icon-bar"></span>
+				</button>
+				<a class="navbar-brand" href="#">Paintery</a>
+			</div>
+			<div class="collapse navbar-collapse scrollable-menu" id="bs-example-navbar-collapse-1">
+				<!-- File -->
+				<ul class="nav navbar-nav scrollable-menu">
+					<li class="dropdown">
+						<a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">File</a>
+						<ul class="dropdown-menu">
+							<li onclick="window.downloadIt = true;"><a href="#"><i class="fa fa-download"></i> Download.........<small>Ctrl+S</small></a></li>
+							<li onclick="window.shareIt = true;"><a href="#"><i class="fa fa-share-alt"  ></i> Upload (Share)</a></li>
+							<li onclick="window.clearCanvas = true;"><a href="#"><i class="fa fa-ban"    ></i> Clear Canvas</a></li>
+						</ul>
+					</li>
+				</ul>
+				<!-- Edit -->
+				<ul class="nav navbar-nav scrollable-menu">
+					<li class="dropdown">
+						<a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Edit</a>
+						<ul class="dropdown-menu">
+							<li onclick="window.undoAction = true;"><a href="#"><i class="fa fa-undo"  ></i> Undo Action...<small>Ctrl+Z</small></a></li>
+							<li onclick="window.redoAction = true;"><a href="#"><i class="fa fa-repeat"></i> Redo Action...<small>Ctrl+Y</small></a></li>
+						</ul>
+					</li>
+				</ul>
+				<!-- Tool -->
+				<ul class="nav navbar-nav scrollable-menu">
+					<li class="dropdown">
+						<a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Tool</a>
+						<ul class="dropdown-menu">
+							<li class="tool" id="pencil" onclick="window.toolName = 'pencil';"><a href="#"><i class="fa fa-pencil"></i   > Pencil...<small>Ctrl+Shift+P</small></a></li>
+							<li class="tool" id="brush" onclick="window.toolName = 'brush';"><a href="#"><i class="fa fa-paint-brush"></i> Brush....<small>Ctrl+Shift+B</small></a></li>
+							<li class="tool" id="line" onclick="window.toolName = 'line';"><a href="#"><i class="fa fa-minus"></i        > Line.....<small>Ctrl+Shift+L</small></a></li>
+							<li role="separator" class="divider"></li>
+							<li onclick="$('.modal#' + window.toolName).modal('show');"><a href="#"><i class="fa fa-cog"></i> Options..<small>Ctrl+O</small></a></li>
+						</ul>
+					</li>
+				</ul>
+				<!-- Color -->
+				<ul class="nav navbar-nav scrollable-menu">
+					<li class="dropdown">
+						<a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Color</a>
+						<ul class="dropdown-menu">
+							<li class="dropdown-header">Brightness</li>
+							<li class="color" id="black" onclick="color = 'black';"  ><a style="color: black;" href="#">Black</a></li>
+							<li class="color" id="grey" onclick="color = 'grey';"    ><a style="color: black;" href="#">Grey</a></li>
+							<li class="color" id="white" onclick="color = 'white';"  ><a style="color: black;" href="#">White</a></li>
+							<li class="dropdown-header">Basic</li>
+							<li class="color" id="red" onclick="color = 'red';"       ><a style="color: red;" href="#">Red</a></li>
+							<li class="color" id="orange" onclick="color = 'orange';" ><a style="color: orange;" href="#">Orange</a></li>
+							<li class="color" id="yellow" onclick="color = 'yellow';" ><a style="color: yellow;" href="#">Yellow</a></li>
+							<li class="color" id="lime" onclick="color = 'lime';"     ><a style="color: lime;" href="#">Lime</a></li>
+							<li class="color" id="green" onclick="color = 'green';"   ><a style="color: green;" href="#">Green</a></li>
+							<li class="color" id="aqua" onclick="color = 'aqua';"     ><a style="color: aqua;" href="#">Aqua</a></li>
+							<li class="color" id="blue" onclick="color = 'blue';"     ><a style="color: blue;" href="#">Blue</a></li>
+							<li class="color" id="purple" onclick="color = 'purple';" ><a style="color: purple;" href="#">Purple</a></li>
+							<li class="color" id="pink" onclick="color = 'pink';"     ><a  style="color: purple;" href="#">Pink</a></li>
+							<li class="dropdown-header">Custom</li>
+							<li class="color" id="custom"><a href="#"><input type="color" onchange="color = this.value;"></a></li>
+						</ul>
+					</li>
+				</ul>
+				<ul class="nav navbar-nav navbar-right">
+					<li><a href="https://timmyrs.de" target="_blank"><i class="fa fa-heart"></i> Tim Speckhals</a></li>
+					<li><a href="https://github.com/timmyrsde/Paintery" target="_blank"><i class="fa fa-github"></i> Github</a></li>
+				</ul>
+			</div>
+		</div>
+	</nav>
+	<!-- Tool Options -->
+	<div class="modal fade" id="pencil">
+		<div class="modal-dialog">
+			<div class="modal-content">
+				<div class="modal-header">
+					<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+					<h4 class="modal-title"><i class="fa fa-pencil"></i> Pencil</h4>
+				</div>
+				<div class="modal-body">
+					<p><input class="check_simplify" type="checkbox" onchange="toggleSimplify(this);" checked> Simplify</p>
+					<p><input class="check_structure" type="checkbox" onchange="toggleStructure(this);"> Show Structure</p>
+				</div>
+				<div class="modal-footer">
+					<button type="button" class="btn btn-primary" data-dismiss="modal">I'm done.</button>
+				</div>
+			</div>
+		</div>
+	</div>
+	<div class="modal fade" id="brush">
+		<div class="modal-dialog">
+			<div class="modal-content">
+				<div class="modal-header">
+					<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+					<h4 class="modal-title"><i class="fa fa-paint-brush"></i> Brush</h4>
+				</div>
+				<div class="modal-body">
+					<p><input class="check_simplify" type="checkbox" onchange="toggleSimplify(this);" checked> Simplify</p>
+					<p><input class="check_structure" type="checkbox" onchange="toggleStructure(this);"> Show Structure</p>
+					<p><input class="value_brsize" type="number" value="5" min="2" max="500" onchange="updateBRSize(this);"> Brush Size</p>
+				</div>
+				<div class="modal-footer">
+					<button type="button" class="btn btn-primary" data-dismiss="modal">I'm done.</button>
+				</div>
+			</div>
+		</div>
+	</div>
+	<div class="modal fade" id="line">
+		<div class="modal-dialog">
+			<div class="modal-content">
+				<div class="modal-header">
+					<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+					<h4 class="modal-title"><i class="fa fa-minus"></i> Line</h4>
+				</div>
+				<div class="modal-body">
+					<p><input class="check_structure" type="checkbox" onchange="toggleStructure(this);"> Show Structure</p>
+					<p><input class="value_brsize" type="number" value="5" min="2" max="500" onchange="updateBRSize(this);"> Brush Size</p>
+				</div>
+				<div class="modal-footer">
+					<button type="button" class="btn btn-primary" data-dismiss="modal">I'm done.</button>
+				</div>
+			</div>
+		</div>
+	</div>
+	<!-- Drawing Canvas -->
+	<canvas id="canvas"></canvas>
+	<script type="text/javascript" src="https://cdn.netdex.co/jQuery.js"></script>
+	<script type="text/javascript" src="paper.js"></script>
+	<script type="text/javascript" src="canvas2image.js"></script>
+	<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js" integrity="sha384-0mSbJDEHialfmuBBQP6A4Qrprq5OVfW37PRR3j5ELqxss1yVqOtnepnHVP9aJ7xS" crossorigin="anonymous"></script>
+	<link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/font-awesome/4.5.0/css/font-awesome.min.css"/>
+	<!-- Script -->
+	<script>
+		// Var: Basic
+		var rotErr = false;
+		var color = "black";
+		var stwidth = "5";
+		var paperscript = {};
+		window.toolName = "pencil";
+		// Var: File
+		window.downloadIt = false;
+		window.shareIt = false;
+		// Var: Edit
+		window.undoAction = false;
+		window.redoAction = false;
+		window.clearCanvas = false;
+		// Var: Tool Options
+		window.simplify = true;
+		window.drawDetails = false;
+
+		// Event: Key
+		document.onkeydown = function(e)
+		{
+			var prev = true;
+			var evtobj = ((window.event) ? event : e);
+			if(evtobj.ctrlKey)
+			{
+				if(evtobj.shiftKey)
+				{
+					if(evtobj.keyCode == 80)
+					{
+						window.toolName = "pencil";
+					}
+					else if(evtobj.keyCode == 66)
+					{
+						window.toolName = "brush";
+					}
+					else if(evtobj.keyCode == 76)
+					{
+						window.toolName = "line";
+					} else
+					{
+						prev = false;
+					}
+				} else
+				{
+					if(evtobj.keyCode == 90)
+					{
+						window.undoAction = true;
+					}
+					else if(evtobj.keyCode == 89)
+					{
+						window.redoAction = true;
+					}
+					else if(evtobj.keyCode == 83)
+					{
+						window.downloadIt = true;
+					} else if(evtobj.keyCode == 79)
+					{
+						$(".modal#" + window.toolName).modal("show");
+					} else
+					{
+						prev = false;
+					}
+				}
+			} else
+			{
+				prev = false;
+			}
+			if(prev)
+			{
+				evtobj.preventDefault();
+			}
+		};
+
+		function toggleSimplify(elm)
+		{
+			window.simplify = elm.checked;
+			$(".check_simplify").not(elm).each(function(){this.checked = window.simplify;});
+		}
+
+		function toggleStructure(elm)
+		{
+			window.drawDetails = elm.checked;
+			$(".check_structure").not(elm).each(function(){this.checked = window.drawDetails;});
+		}
+
+		function updateBRSize(elm)
+		{
+			stwidth = elm.value;
+			$(".value_brsize").not(elm).each(function(){this.value = stwidth;});
+		}
+
+		// Timer: Draw()
+		function scriptDraw()
+		{
+			// Check: Rotation
+			if(document.body.clientHeight > document.body.clientWidth)
+			{
+				if(!rotErr)
+				{
+					var html = "<h3>Paintery Error</h3>";
+					if(navigator.userAgent.match(/(iPhone|iPod|iPad|Android|BlackBerry)/))
+					{
+						html += "<p><strong>Reason</strong> Mobile Rotated Incorrect.</p>";
+						html += "<p><strong>Fix</strong> Rotate your Mobile by 90 degrees.</p>";
+					} else
+					{
+						html += "<p><strong>Reason</strong> Window sized small.</p>";
+						html += "<p><strong>Fix</strong> Make sure the window is aligned horizontally.</p>";
+					}
+					$(document.body).html("<center>" + html + "</center>");
+					rotErr = true;
+				}
+			} else
+			{
+				if(rotErr)
+				{
+					rotErr = false;
+					window.location.reload();
+				}
+			}
+
+			// Draw: Paper
+			paperscript.paperDraw();
+
+			// Menu: File
+			if(window.downloadIt)
+			{
+				window.downloadIt = false;
+				var canvas = $("#canvas")[0];
+				var data = canvas.toDataURL("image/png");
+				data = data.replace("image/png", "application/octet-stream");
+				var dl = document.createElement("a");
+				var name = window.prompt("Give your work a name.", "Paintery Image");
+				if(name != null)
+				{
+					dl.download =  name + ".png";
+					dl.href = data;
+					dl.id = "download-btn";
+					dl.innerHTML = "Download";
+					$("body")[0].appendChild(dl);
+					$("#download-btn")[0].click();
+					$("#download-btn").remove();
+				}
+			}
+
+			if(window.shareIt)
+			{
+				window.shareIt = false;
+				var canvas = $("#canvas")[0];
+				var b64 = canvas.toDataURL("image/png");
+				$.post("https://api.netdex.co/img", {
+					"base64": b64
+				}).done(function(data)
+				{
+					if(data.link === undefined)
+					{
+						alert("Error uploading image. Maybe retry?");
+					} else
+					{
+						prompt("Upload succeeded. Here's your link:", data.link);
+					}
+				});
+			}
+
+			// Menu: Tool
+			$(".tool").removeClass("active");
+			$(".tool#" + window.toolName).addClass("active");
+
+			// Menu: Color
+			$(".color").removeClass("active");
+			if(color.substr(0, 1) == "#")
+			{
+				$(".color#custom").addClass("active");
+			} else
+			{
+				$(".color#" + color).addClass("active");
+			}
+
+			// Timer
+			window.setTimeout(function()
+			{
+				scriptDraw();
+			}, 1);
+		}
+	</script>
+	<script type="text/paperscript" canvas="canvas">
+		var path = null;
+		var start = null;
+		var paths = [];
+		var redos = [];
+		var canvas = document.getElementById("canvas");
+
+		this.paperDraw = function()
+		{
+			// Menu: Edit
+			if(window.undoAction)
+			{
+				window.undoAction = false;
+				var l = paths.length;
+				if(l > 0)
+				{
+					var i = paths.indexOf(paths[(l - 1)]);
+					if(i > -1)
+					{
+						var o = paths[i].clone();
+						o.visible = false;
+						redos.push(o);
+						paths[i].remove();
+						paths.splice(i, 1);
+						view.update();
+					}
+				}
+			}
+			if(window.redoAction)
+			{
+				window.redoAction = false;
+				var l = redos.length;
+				if(l > 0)
+				{
+					var i = redos.indexOf(redos[(l - 1)]);
+					if(i > -1)
+					{
+						redos[i].visible = true;
+						paths.push(redos[i]);
+						redos.splice(i, 1);
+						view.update();
+					}
+				}
+			}
+			if(window.clearCanvas)
+			{
+				window.clearCanvas = false;
+				for(var i = 0; i < paths.length; i++)
+				{
+					paths[i].remove();
+				}
+				path = null;
+				start = null;
+				paths = [];
+				redos = [];
+				view.update();
+			}
+		};
+
+		function onMouseDown(event)
+		{
+			start = event.point;
+			if(window.toolName == "pencil")
+			{
+				path = new Path({
+					segments: [event.point]
+				});
+			}
+			if(window.toolName == "line")
+			{
+				path = new Path.Line({
+					from: event.point,
+					to: event.point
+				});
+			}
+			if(window.toolName == "brush")
+			{
+				path = new Path({
+					segments: [event.point],
+					strokeWidth: stwidth
+				});
+			}
+			path.strokeColor = color;
+			strokeJoin = "round";
+			path.selected = window.drawDetails;
+		}
+
+		function onMouseDrag(event)
+		{
+			if(window.toolName == "pencil" || window.toolName == "brush")
+			{
+				path.add(event.point);
+			}
+			if(window.toolName == "line")
+			{
+				path.remove();
+				path = new Path.Line({
+					from: start,
+					to: event.point,
+					strokeColor: color,
+					selected: window.drawDetails,
+					strokeWidth: stwidth
+				});
+			}
+		}
+
+		function onMouseUp(event)
+		{
+			if(window.toolName == "pencil" || window.toolName == "brush")
+			{
+				if(window.simplify)
+				{
+					path.simplify(100);
+				}
+			}
+			path.selected = false;
+			paths.push(path);
+			path = null;
+		}
+
+		paper.install(window.paperscript);
+	</script>
+</body>
+</html>

@@ -1,0 +1,34 @@
+html, body
+{
+	margin: 0;
+	overflow: hidden;
+	height: 100%;
+	background-color: black;
+}
+
+canvas
+{
+	z-index: 1;
+	position: fixed;
+	top: 50px;
+	left: 0px;
+	bottom: 0px;
+	height: auto;
+	width: 100%;
+	background-image: url("background.png");
+	background-repeat: repeat;
+	cursor: crosshair;
+}
+
+div.collapse.navbar-collapse.scrollable-menu
+{
+	height: auto;
+	max-height: 300px;
+	overflow-x: hidden;
+}
+
+ul.nav.navbar-nav.scrollable-menu
+{
+	height: auto;
+	max-height: 500px;
+}
